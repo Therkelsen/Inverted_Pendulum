@@ -13,4 +13,5 @@ Servo Drive:
 [link](https://www.se.com/ww/en/product/LXM32CU90M2/motion-servo-drive-lexium-32-single-phase-supply-voltage-115-230-v-0-3-0-5-kw/ )
 
 PLC:
-[link](https://www.se.com/dk/da/product/TM241CEC24T/modicon-tm241-plc-24-io-transistor-pnp-ethernet-can-master/)
+[link](https://www.se.com/dk/da/product/TM241CEC24T/modicon-tm241-plc-24-io-transistor-pnp-ethernet-can-master/),
+[Schneider Help](https://product-help.schneider-electric.com/Machine%20Expert/V2.0/LandingPages/en/VLP_Controllers/VLP_M241_Logic_Controllers/index.html)
