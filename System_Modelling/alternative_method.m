@@ -58,39 +58,59 @@ step_info = lsiminfo(y,t);
 cart_info = step_info(1)
 pend_info = step_info(2)
 
-% Now, root locus is used to find the proper controller as per
-% https://ctms.engin.umich.edu/CTMS/index.php?example=InvertedPendulum&section=ControlRootLocus
+%% PID Tuning
+close all
+[C_pi,info] = pidtune(tf_pend,'PIDF')
 
-figure
-rlocus(tf_pend)
-title('Root Locus of Plant (under Proportional Control)')
+tf_pend_pi = feedback(C_pi*tf_pend, 1)
 
-C = 1/s;
-figure
-rlocus(C*tf_pend)
-title('Root Locus with Integral Control')
+stepinfo(tf_pend_pi)
 
-zeros = zero(C*tf_pend)
-poles = pole(C*tf_pend)
+figure()
+step(tf_pend_pi)
 
-% PID Controller is made
-z = [-3 -4];
-p = 0;
-k = 1;
-C = zpk(z,p,k);
+figure()
+impulse(tf_pend_pi)
 
-rlocus(C*tf_pend)
-title('Root Locus with PID Controller')
-[k,poles] = rlocfind(C*tf_pend)
+figure()
+margin(C_pi*tf_pend)
 
-K = k;
-T = feedback(tf_pend,K*C);
-figure
-impulse(T)
-title('Impulse Disturbance Response of Pendulum Angle under PID Control');
-
-T2 = feedback(1,tf_pend*C)*tf_cart;
-t = 0:0.01:8.5;
-figure
-impulse(T2, t);
-title('Impulse Disturbance Response of Cart Position under PID Control');
+%%
+% % Now, root locus is used to find the proper controller as per
+% % https://ctms.engin.umich.edu/CTMS/index.php?example=InvertedPendulum&section=ControlRootLocus
+% 
+% figure
+% rlocus(tf_pend)
+% title('Root Locus of Plant (under Proportional Control)')
+% 
+% C = 1/s;
+% figure
+% rlocus(C*tf_pend)
+% title('Root Locus with Integral Control')
+% 
+% zeros = zero(C*tf_pend)
+% poles = pole(C*tf_pend)
+% 
+% % PID Controller is made
+% z = [-3 -4];
+% p = 0;
+% k = 1;
+% C = zpk(z,p,k);
+% 
+% rlocus(C*tf_pend)
+% title('Root Locus with PID Controller')
+% [k,poles] = rlocfind(C*tf_pend)
+% 
+% K = k;
+% T = feedback(tf_pend,K*C);
+% figure
+% impulse(T)
+% title('Impulse Disturbance Response of Pendulum Angle under PID Control');
+% 
+% T2 = feedback(1,tf_pend*C)*tf_cart;
+% t = 0:0.01:8.5;
+% figure
+% impulse(T2, t);
+% title('Impulse Disturbance Response of Cart Position under PID Control');
+% 
+% step(T,t)
