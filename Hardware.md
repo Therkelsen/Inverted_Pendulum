@@ -14,4 +14,10 @@ Servo Drive:
 
 PLC:
 [link](https://www.se.com/dk/da/product/TM241CEC24T/modicon-tm241-plc-24-io-transistor-pnp-ethernet-can-master/),
-[Schneider Help](https://product-help.schneider-electric.com/Machine%20Expert/V2.0/LandingPages/en/VLP_Controllers/VLP_M241_Logic_Controllers/index.html)
+[Help and documentation](https://product-help.schneider-electric.com/Machine%20Expert/V2.0/LandingPages/en/VLP_Controllers/VLP_M241_Logic_Controllers/index.html)
+
+Safety Module
+[Link](https://www.se.com/ww/en/product/TM3SAF5R/safety-module-modicon-tm3-safety-1-function-cat-4-pl-e-sil-cl3-screw-24-vdc/)
+
+Analog output module
+[Link](https://www.se.com/ww/en/product/TM3AQ4/analog-output-module-modicon-tm3-4-outputs-screw-24-vdc/)
