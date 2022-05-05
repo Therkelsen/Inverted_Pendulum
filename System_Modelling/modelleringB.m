@@ -21,7 +21,7 @@ clc, clear, close all
  mStang = 0.082;  % masse af stang [kg]
  m =  mStang + mPendul;
  l =  0.35; % total længde af stang [m]
- g = -9.82; % tyngdeaccelerationen [m/s^2]
+ g = 9.82; % tyngdeaccelerationen [m/s^2]
  b = 5; %dæmpning af conveyorbælte [N/(m/s)]
 
   I = (1.0/3.0)*m*l^2;
@@ -52,49 +52,57 @@ sys = ss(A, B, C, D)
 
 t = 0:0.1:10
 u = ones(size(t))
-x0 = [0; 0; 0; 0]
+
+% x0 = [0; 0; 0; 0]
 % 
 % figure()
 % lsim(sys, u, t, x0)
+
+
+% Ti = 0.1;
+% Td = 0.1;
 % 
+% pidP = -(1 + (1/Ti)*(1/s) + Td*s)
 % 
-% figure()
-% impulse(tfP)
+% figure(1)
+% rlocus(tfP*pidP)
 % 
-% figure()
-% impulse(tfC)
-
-%[pidP info] = pidtune(tfP, 'pidf')
-
-%pidP = -1.37*1000 -4.33*1000/s -93.2*(s/0.00198*s + 1);
-
-%pidTuner(tfP, 'PIDF')
-
-Ti = 0.1;
-Td = 0.1;
-
-pidP = -(1 + (1/Ti)*(1/s) + Td*s)
-
-figure(1)
-rlocus(tfP*pidP)
-
-Ti = 2;
-Td = 0.1;
+% K = 572*pidP
+% 
+% H = K*tfP/(1 + K*tfP)
+% 
+% figure(2)
+% lsim(H, u, t)
+% 
+% figure(3)
+% margin(K*tfP)
 
 
-K = 572*pidP
+Kp = -120
+Ki = -1
+Kd = -30
 
-H = K*tfP/(1 + K*tfP)
+K = Kp +Ki*(1/s) + Kd*s
 
-figure(2)
-lsim(H, u, t)
+Ts = 0.01;
 
-figure(3)
-margin(K*tfP)
+z = tf('z')
+
+sReplace = (2/Ts)*((z-1)/(z+1))
+
+discreteTek = Kp +Ki*(1/sReplace) + Kd*sReplace
+
+Hp = tfP/(1+tfP*K)
+
+Hc = (tfC)/(1+tfP*K)
+
+figure(5)
+impulse(Hp, t)
+
+figure(6)
+impulse(Hc, t)
 
 
-
-
-
-
+figure(7)
+margin(K*tfC)
 
