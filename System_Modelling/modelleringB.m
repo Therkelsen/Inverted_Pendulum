@@ -1,18 +1,23 @@
+%%  HER lAVES MODElERING VHA. lAGRANGE 
+
 clc, clear, close all
 sympref('AbbreviateOutput', false);
 syms theta(t) x(t)  u m M l g bcart bpend t I
 
-
-  %HER lAVES MODElERING VHA. lAGRANGE 
 
 Ekin = 0.5*(M+m)*diff(x, t)^2 + m*l*diff(x, t) * diff(theta, t)*cos(theta)+0.5*(m*l^2 + I)*diff(theta, t)^2
 Epot = -m*g*l*cos(theta)
 
 lagrange = Ekin - Epot
 
+l1 = diff(diff(lagrange, diff(x, t)), t) - diff(lagrange, x) == - bcart*diff(x, t) + u
+l2 = diff(diff(lagrange, diff(theta, t)), t) - diff(lagrange, theta) == 0
+
+
 l1 = (M+m)*diff(x, t, t) + m*l*diff(theta, t, t) == u - bcart*diff(x, t)
 l2 = (m*l^2 + I)*diff(theta, t, t) + m*l*diff(x, t, t) + m*g*l*theta == 0
 
+%% state feedback
 
 clc, clear, close all
 
@@ -20,7 +25,7 @@ clc, clear, close all
  M =   0.5; % masse af vogn [kg]
  mStang = 0.082;  % masse af stang [kg]
  m =  mStang + mPendul;
- l =  0.35; % total længde af stang [m]
+ l =  0.35; % to tal længde af stang [m]
  g = 9.82; % tyngdeaccelerationen [m/s^2]
  b = 5; %dæmpning af conveyorbælte [N/(m/s)]
 
@@ -50,7 +55,7 @@ D = [0; 0]
 
 sys = ss(A, B, C, D)
 
-t = 0:0.1:10
+t = 0:0.1:20
 u = ones(size(t))
 
 % x0 = [0; 0; 0; 0]
@@ -58,31 +63,22 @@ u = ones(size(t))
 % figure()
 % lsim(sys, u, t, x0)
 
+kp = -1;
+ki = -1/120;
+kd = -30/120;
 
-% Ti = 0.1;
-% Td = 0.1;
-% 
-% pidP = -(1 + (1/Ti)*(1/s) + Td*s)
-% 
-% figure(1)
-% rlocus(tfP*pidP)
-% 
-% K = 572*pidP
-% 
-% H = K*tfP/(1 + K*tfP)
-% 
-% figure(2)
-% lsim(H, u, t)
-% 
-% figure(3)
-% margin(K*tfP)
+K = kp +ki*(1/s) + kd*s
 
+pole(tfC)
+pole(tfP)
 
-Kp = -120
-Ki = -1
-Kd = -30
+figure()
+rlocus(tfP*K)
 
-K = Kp +Ki*(1/s) + Kd*s
+figure()
+rlocus(tfC*K)
+
+K = 120*K;
 
 Ts = 0.01;
 
@@ -90,7 +86,7 @@ z = tf('z')
 
 sReplace = (2/Ts)*((z-1)/(z+1))
 
-discreteTek = Kp +Ki*(1/sReplace) + Kd*sReplace
+discreteTek = kp +ki*(1/sReplace) + kd*sReplace
 
 Hp = tfP/(1+tfP*K)
 
@@ -101,7 +97,6 @@ impulse(Hp, t)
 
 figure(6)
 impulse(Hc, t)
-
 
 figure(7)
 margin(K*tfC)
