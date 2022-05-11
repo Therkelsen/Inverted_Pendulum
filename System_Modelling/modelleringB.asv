@@ -5,8 +5,8 @@ sympref('AbbreviateOutput', false);
 syms theta(t) x(t)  u m M l g bcart bpend t I
 
 
-Ekin = 0.5*(M+m)*diff(x, t)^2 - m*l*diff(x, t) * diff(theta, t)*cos(theta)+0.5*(m*l^2 + I)*diff(theta, t)^2
-Epot = m*g*l*cos(theta)
+Ekin = 0.5*(M+m)*diff(x, t)^2 + m*l*diff(x, t) * diff(theta, t)*cos(theta)+0.5*(m*l^2 + I)*diff(theta, t)^2
+Epot = -m*g*l*cos(theta)
 
 lagrange = Ekin - Epot
 
@@ -14,8 +14,8 @@ l1 = diff(diff(lagrange, diff(x, t)), t) - diff(lagrange, x) == - bcart*diff(x, 
 l2 = diff(diff(lagrange, diff(theta, t)), t) - diff(lagrange, theta) == -bpend*diff(theta, t)
 
 
-%l1 = (M+m)*diff(x, t, t) + m*l*diff(theta, t, t) == u - bcart*diff(x, t)
-%l2 = (m*l^2 + I)*diff(theta, t, t) + m*l*diff(x, t, t) + m*g*l*theta == 0
+l1 = (M+m)*diff(x, t, t) + m*l*diff(theta, t, t) == u - bcart*diff(x, t)
+l2 = (m*l^2 + I)*diff(theta, t, t) + m*l*diff(x, t, t) + m*g*l*theta == 0
 
 %% state feedback
 

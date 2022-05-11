@@ -16,7 +16,7 @@ Jp_ = (1/3)*mp_*l_^2
 %pend = (mp*l + Jp)*ddtheta + mp*l*ddx*cos(theta)+mp*g*l*sin(theta) == 0
 
 cart = (mc+mp)*ddx-mp*l*cos(theta)*ddtheta+mp*l*sin(theta)*dtheta^2 == F - bc*dx
-pend = mp*l*ddtheta-mp*l*ddx*cos(theta)-mp*g*l*sin(theta) == -bp*dtheta
+pend = (mp*l + Jp)*ddtheta-mp*l*ddx*cos(theta)-mp*g*l*sin(theta) == -bp*dtheta
 
 
 
