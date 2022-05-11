@@ -40,28 +40,33 @@ tfC = ((m*l^2 + I)*s^2 + g*m*l/q)/(s^4 + (b*(m*l + I)/q)*s^3 + ((M+m)*g*m*l/q)*s
 
 [nump, denp] = tfdata(tfP)
 [numc, denc] = tfdata(tfC)
+C = M+m-((m*l)^2)/(m*l^2+I)
 
-b1 = -(m*l^2 + I)*b/q
-b2 = m^2*g*l^2/q
-b3 = m*l*b/q
-b4 = -(M+m)*m*g*l/q
-w1 = (I+m*l^2)/q
-w2 = -m*l/q
+elm11 = -b/C
+elm12 = (((m*l)^2)*g)/(C*(m*l^2+I))
+elm31 = (b*(m+M))/(C*m*l) - b/(m*l)
+elm32 = -(g*(m+M)*(m*l)^2)/(C*(m*l^2 + I)*(m*l))
 
-A = [0, 1, 0, 0; 0, b1, b2, 0; 0, 0, 0, 1; 0, b3, b4, 0]
-B = [0; w1; 0; w2]
+u1 = 1/C
+u2 = 1/(m*l) - (m+M)/(C*m*l)
+
+A = [0, 1, 0, 0; 0, elm11, elm12, 0; 0, 0, 0, 1; 0, elm31, elm32, 0]
+B = [0; u1; 0; u2]
 C = [1, 0, 0, 0; 0, 0, 1, 0]
 D = [0; 0]
 
 sys = ss(A, B, C, D)
 
 t = 0:0.1:20
-u = ones(size(t))
+u = zeros(size(t))
 
-% x0 = [0; 0; 0; 0]
-% 
-% figure()
-% lsim(sys, u, t, x0)
+figure()
+impulse(sys, 20)
+
+ x0 = [0; 0; 0; 0]
+ 
+ figure()
+ lsim(sys, u, t, x0)
 
 kp = -1;
 ki = -1/120;
