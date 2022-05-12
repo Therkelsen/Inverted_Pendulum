@@ -57,7 +57,6 @@ vpa(B);
 C = double([1 0 0 0; 0 0 1 0]) %Cart speed
 D = double(0);
 
-
 % Statespace object
 sys_ss = ss(double(A),double(B),double(C),D);
 
@@ -76,25 +75,33 @@ GP = tf(num(2),denum(2));
 %title('Cart PZ Map')
 
 %% Manual PID tuning using root locus
-% kpP = -1;
-% kiP = -1;
-% kdP = -1;
-%
-% kpC = -1;
-% kiC = -1;
-% kdC = -1;
-% 
-% KsP = kpP +kiP*(1/s) + kdP*s
-% KsC = kpC +kiC*(1/s) + kdC*s
-%
-% figure()
-% rlocus(GP*KsP)
-% title('Pendulum Root Locus')
-% 
-% figure()
-% rlocus(GC*KsC)
-% title('Cart Root Locus')
-%
+s = tf('s')
+
+kpP = 1;
+kiP = 0;
+kdP = 0;
+
+kpC = 1;
+kiC = 0;
+kdC = 0;
+
+KsP = kpP +kiP*(1/s) + kdP*s
+KsC = kpC +kiC*(1/s) + kdC*s
+
+fig = figure()
+rlocus(GP*KsP)
+title('Pendulum Root Locus')
+xSize = 900; ySize = 800;
+xLeft = 100; yTop = 100;
+set(fig,'Position',[xLeft yTop xSize ySize])
+
+fig = figure()
+rlocus(GC*KsC)
+title('Cart Root Locus')
+xSize = 900; ySize = 800;
+xLeft = 100; yTop = 100;
+set(fig,'Position',[xLeft yTop xSize ySize])
+
 % kpP = -1;
 % kiP = -1;
 % kdP = -1;
@@ -116,46 +123,58 @@ GP = tf(num(2),denum(2));
 [kpC,kiC,kdC,TfC] = piddata(KsC);
 
 %% Control structure analysis
-LP = KsP*GP;
-LC = KsC*GC;
+LP = KsP*GP
+LC = KsC*GC
 
-HP = (LP)/(1+LP);
-HC = (LC)/(1+LC);
+HP = (LP)/(1+LP)
+HC = (LC)/(1+LC)
 
-t1 = (0:0.001:1)';
-t2 = (0:0.001:0.05)';
+t1 = (0:0.001:0.5)';
+t2 = (0:0.001:0.1)';
 
-figure()
-stepplot(HP, 'b',t1)
+fig = figure()
+stepplot(HP,t1)
 title('Pendulum Step Response')
+xSize = 900; ySize = 800;
+xLeft = 100; yTop = 100;
+set(fig,'Position',[xLeft yTop xSize ySize])
+xlabel('$Time$','interpreter','latex')
+ylabel('$Amplitude$ (m)','interpreter','latex')
+legend('Pendulum');
+grid on
 
-figure()
-stepplot(HC,'r',t2)
-title('Cart Step Response')
+fig = figure()
+impulseplot(HP,t1)
+title('Pendulum Impulse Response')
+xSize = 900; ySize = 800;
+xLeft = 100; yTop = 100;
+set(fig,'Position',[xLeft yTop xSize ySize])
+xlabel('$Time$','interpreter','latex')
+ylabel('$Amplitude$ (m)','interpreter','latex')
+legend('Pendulum');
+grid on
 
-% figure()
-% impulseplot(HP, 'b')
-% title('Pendulum Impulse Response')
-% 
-% figure()
-% impulseplot(HC,'r')
-% title('Cart Impulse Response')
+fig = figure()
+stepplot(HP,HC,t1)
+title('System Step Responses')
+xSize = 900; ySize = 800;
+xLeft = 100; yTop = 100;
+set(fig,'Position',[xLeft yTop xSize ySize])
+xlabel('$Time$','interpreter','latex')
+ylabel('$Amplitude$ (m)','interpreter','latex')
+legend('Pendulum','Cart');
+grid on
 
-% figure()
-% bode(Tp)
-% title('Pendulum Bode Plot')
-% 
-% figure()
-% bode(Tc)
-% title('Cart Bode Plot')
-
-% figure()
-% margin(K*GP)
-% title('Pendulum Stability Margins')
-% 
-% figure()
-% margin(K*GC)
-% title('Cart Stability Margins')
+fig = figure()
+impulseplot(HP,HC,t2)
+title('System Impulse Responses')
+xSize = 900; ySize = 800;
+xLeft = 100; yTop = 100;
+set(fig,'Position',[xLeft yTop xSize ySize])
+xlabel('$Time$','interpreter','latex')
+ylabel('$Amplitude$ (m)','interpreter','latex')
+legend('Pendulum','Cart');
+grid on
 
 %% Digitization of controllers
 Ts = 0.001;
