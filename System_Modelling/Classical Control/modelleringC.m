@@ -1,17 +1,19 @@
 %% System modelling
 clc, clear, close all
 sympref('AbbreviateOutput', false);
-syms mc mp l theta dtheta ddtheta x dx ddx F bc bp Jp g
+syms mc mp l theta dtheta ddtheta x dx ddx F bc bp Jp g;
 
-g_ = 9.82    %Earth gravitational force
+g_ = 9.82;    %Earth gravitational force
 
-mc_ = 0.5    %Mass of cart
-bc_ = 5      %Friction coeficient of cart
+mc_ = 0.5;    %Mass of cart
+bc_ = 5;      %Friction coeficient of cart
 
-mp_ = 0.084  %Mass of pendulum
-bp_ = 0.0012 %Friction coeficcient of pendulum
-l_ = 0.35    %length of pendulum
+mp_ = 0.084;  %Mass of pendulum
+bp_ = 0.0012; %Friction coeficcient of pendulum
+%bp_ = 0;
+l_ = 0.35;    %length of pendulum
 Jp_ = (1/3)*mp_*l_^2
+%Jp_ = 0;
 
 %Ours (probably wrong)
 %cart = (mc+mp)*ddx + mp*l*cos(theta)*ddtheta - mp*l*sin(theta)*dtheta^2 == F - bc*dx
@@ -22,9 +24,9 @@ pend = (mp*l + Jp)*ddtheta-mp*l*ddx*cos(theta)-mp*g*l*sin(theta) == -bp*dtheta
 
 sol = solve([cart,pend],ddx,ddtheta);
 
-x1 = dx;
+x1 = dx
 x2 = sol.ddx
-x3 = dtheta;
+x3 = dtheta
 x4 = sol.ddtheta
 
 %Differentiate into jacobian:
@@ -44,11 +46,11 @@ Al = subs(An, {theta dtheta x dx F},{0 0 0 0 0})
 Bl = subs(Bn, {theta dtheta x dx F},{0 0 0 0 0})
 
 %Insert Values
-A = double(subs(Al, {Jp mc mp l bc bp g}, {Jp_ mc_ mp_ l_ bc_ bp_ g_}));
-B = double(subs(Bl, {Jp mc mp l bc bp g}, {Jp_ mc_ mp_ l_ bc_ bp_ g_}));
+A = double(subs(Al, {Jp mc mp l bc bp g}, {Jp_ mc_ mp_ l_ bc_ bp_ g_}))
+B = double(subs(Bl, {Jp mc mp l bc bp g}, {Jp_ mc_ mp_ l_ bc_ bp_ g_}))
 
-vpa(A)
-vpa(B)
+vpa(A);
+vpa(B);
 
 %Values for matrix [cart pos, cart velocity, pend pos, pend velocity]
 %velocity
