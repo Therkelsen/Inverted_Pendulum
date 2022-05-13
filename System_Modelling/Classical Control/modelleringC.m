@@ -61,21 +61,25 @@ D = double(0);
 sys_ss = ss(double(A),double(B),double(C),D);
 
 % Transferfunction from statespace
-sys_tf = tf(sys_ss)
+sys_tf = tf(sys_ss);
 
 % Individual transfer functions
 [num, denum] = tfdata(sys_tf);
 
-GC = tf(num(1),denum(1));
+s = tf('s');
+
+GC = tf(num(1),denum(1))
 GP = tf(num(2),denum(2));
+
+GC = (1.606*s)/(s^3+9.004*s^2-8.881*s-78.85)
 
 %pole(GP)
 %title('Pendulum PZ Map')
 %pole(GC)
 %title('Cart PZ Map')
 
-%% Manual PID tuning using root locus
-s = tf('s')
+%% Manual Parallel PID tuning using root locus
+s = tf('s');
 
 kpP = 1;
 kiP = 0;
@@ -92,14 +96,14 @@ fig = figure()
 rlocus(GP*KsP)
 title('Pendulum Root Locus')
 xSize = 900; ySize = 800;
-xLeft = 100; yTop = 100;
+xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
 
 fig = figure()
 rlocus(GC*KsC)
 title('Cart Root Locus')
 xSize = 900; ySize = 800;
-xLeft = 100; yTop = 100;
+xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
 
 % kpP = -1;
@@ -113,7 +117,7 @@ set(fig,'Position',[xLeft yTop xSize ySize])
 % KsP = kpP +kiP*(1/s) + kdP*s
 % KsC = kpC +kiC*(1/s) + kdC*s
 
-%% Auto tuning of PID controllers
+%% Auto tuning of Parallel PID controllers
 %kp = proportional gain, ki = integral grain
 % kd = derivative gain, Tf = filter order
 [KsP,infoP] = pidtune(GP, 'PID')
@@ -134,45 +138,45 @@ t2 = (0:0.001:0.1)';
 
 fig = figure()
 stepplot(HP,t1)
-title('Pendulum Step Response')
+title('PID Pendulum Step Response')
 xSize = 900; ySize = 800;
-xLeft = 100; yTop = 100;
+xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time$','interpreter','latex')
-ylabel('$Amplitude$ (m)','interpreter','latex')
+xlabel('$Time~[s]$','interpreter','latex')
+ylabel('$Amplitude~[m]$','interpreter','latex')
 legend('Pendulum');
 grid on
 
 fig = figure()
 impulseplot(HP,t1)
-title('Pendulum Impulse Response')
+title('PID Pendulum Impulse Response')
 xSize = 900; ySize = 800;
-xLeft = 100; yTop = 100;
+xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time$','interpreter','latex')
-ylabel('$Amplitude$ (m)','interpreter','latex')
+xlabel('$Time~[s]$','interpreter','latex')
+ylabel('$Amplitude~[m]$','interpreter','latex')
 legend('Pendulum');
 grid on
 
 fig = figure()
 stepplot(HP,HC,t1)
-title('System Step Responses')
+title('Parallel PID System Step Responses')
 xSize = 900; ySize = 800;
-xLeft = 100; yTop = 100;
+xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time$','interpreter','latex')
-ylabel('$Amplitude$ (m)','interpreter','latex')
+xlabel('$Time~[s]$','interpreter','latex')
+ylabel('$Amplitude~[m]$','interpreter','latex')
 legend('Pendulum','Cart');
 grid on
 
 fig = figure()
 impulseplot(HP,HC,t2)
-title('System Impulse Responses')
+title('Parallel PID System Impulse Responses')
 xSize = 900; ySize = 800;
-xLeft = 100; yTop = 100;
+xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time$','interpreter','latex')
-ylabel('$Amplitude$ (m)','interpreter','latex')
+xlabel('$Time~[s]$','interpreter','latex')
+ylabel('$Amplitude~[m]$','interpreter','latex')
 legend('Pendulum','Cart');
 grid on
 
@@ -186,3 +190,24 @@ sReplace = (2/Ts)*((z-1)/(z+1));
 KzP = kpP + kiP*(1/sReplace) + kdP*sReplace
 
 KzC = kpC + kiC*(1/sReplace) + kdC*sReplace
+
+%% Cascade controllers
+
+kpP = 695;
+kiP = 3.8e+03;
+kdP = 31.8;
+
+KsP = kpP +kiP*(1/s) + kdP*s
+
+kpC = 0.00468134655401907;
+kiC = 0.000103385823399229;
+kdC = 0.0505001089730261;
+TfC = 1.41006414988528;
+
+KsC = kpC + kiC*(1/s) + kdC*(TfC/(1+TfC*(1/s)))
+
+
+
+
+
+
