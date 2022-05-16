@@ -128,10 +128,13 @@ set(fig,'Position',[xLeft yTop xSize ySize])
 
 %% Control structure analysis
 LP = KsP*GP
+LC = KsC*GC
 
 HP = (LP)/(1+LP)
+HC = (LC)/(1+LC)
 
 t1 = (0:0.001:0.5)';
+t2 = (0:0.001:0.1)';
 
 fig = figure()
 stepplot(HP,t1)
@@ -143,10 +146,6 @@ xlabel('$Time~[s]$','interpreter','latex')
 ylabel('$Amplitude~[m]$','interpreter','latex')
 legend('Pendulum');
 grid on
-
-HC = (LC)/(1+LC)
-LC = KsC*GC
-t2 = (0:0.001:0.1)';
 
 fig = figure()
 impulseplot(HP,t1)
