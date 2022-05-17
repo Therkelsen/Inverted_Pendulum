@@ -6,8 +6,8 @@ syms mc mp l theta dtheta ddtheta x dx ddx F bc bp Jp g;
 g_ = 9.82;    %Earth gravitational force
 
 mc_ = 0.5;    %Mass of cart
-%bc_ = 5;      %Friction coeficient of cart
-bc_ = 0;
+bc_ = 5;      %Friction coeficient of cart
+%bc_ = 0;
 
 mp_ = 0.084;  %Mass of pendulum
 bp_ = 0.0012; %Friction coeficcient of pendulum
@@ -72,8 +72,6 @@ s = tf('s');
 
 GC = tf(num(1),denum(1))
 GP = tf(num(2),denum(2));
-
-GC = (1.606*s)/(s^3+9.004*s^2-8.881*s-78.85)
 
 fig = figure()
 pzmap(GP, GC)
@@ -252,5 +250,38 @@ KsC = kpC + kiC*(1/s) + kdC*(TfC/(1+TfC*(1/s)))
 %%
 close all
 
+A
+B
+C
+D
+
+
+Obs = [C; C*A; C*A*A; C*A*A*A]
+
+Con = [B  A*B   A*A*B   A*A*A*B]
+
+nul = [0, 0; 0, 0; 0, 0; 0, 0]
+nul1 = [0, 0; 0, 0]
+nul2 = [0; 0]
+
+Ae = [A, nul;C, nul1]
+Be = [B; nul2]
+Ce = [C, nul1]
+
+rank(Obs)
+
+rank(Con)
+
+p = [-1.1 -1.2 -100 -110 -120 -130];
+K = place(Ae,-Be,p)
+
+Fi = K(:, [5, 6])
+F = K(:, 1:4)
+
+nul3 = [0, 0, 0]
+
+p1 = [-50, -40, -45, -47]
+L = place(A', -C', p1)
+L = L'
 
 
