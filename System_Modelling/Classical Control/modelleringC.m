@@ -17,12 +17,8 @@ l_ = 0.35;    %length of pendulum
 %Jp_ = (1/3)*mp_*l_^2
 Jp_ = 0;
 
-%Ours (probably wrong)
-%cart = (mc+mp)*ddx + mp*l*cos(theta)*ddtheta - mp*l*sin(theta)*dtheta^2 == F - bc*dx
-%pend = (mp*l + Jp)*ddtheta + mp*l*ddx*cos(theta)+mp*g*l*sin(theta) == 0
-
-cart = (mc+mp)*ddx-mp*l*cos(theta)*ddtheta+mp*l*sin(theta)*dtheta^2 == F - bc*dx
-pend = (mp*l + Jp)*ddtheta-mp*l*ddx*cos(theta)-mp*g*l*sin(theta) == -bp*dtheta
+cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*sin(theta)*dtheta^2== F - bc*dx
+pend = mp*l*ddtheta+mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta-mp*l*sin(theta)*(g+dx*dtheta) == -bp*dtheta
 
 sol = solve([cart,pend],ddx,ddtheta);
 
@@ -76,7 +72,7 @@ GP = tf(num(2),denum(2));
 fig = figure()
 pzmap(GP, GC)
 title('System PZ Map')
-xSize = 900; ySize = 800;
+xSize = 750; ySize = 650;
 xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
 legend('Pendulum','Cart')
@@ -84,11 +80,11 @@ legend('Pendulum','Cart')
 fig = figure()
 stepplot(GP, GC)
 title('System Step Responses')
-xSize = 900; ySize = 800;
+xSize = 750; ySize = 650;
 xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time~[s]$','interpreter','latex')
-ylabel('$Amplitude~[m]$','interpreter','latex')
+xlabel('$Time~$','interpreter','latex')
+ylabel('$Amplitude~$(meters)','interpreter','latex')
 legend('Pendulum', 'Cart');
 grid on
 
@@ -109,52 +105,52 @@ s = tf('s');
 % fig = figure()
 % rlocus(GP*KsP)
 % title('Pendulum Root Locus')
-% xSize = 900; ySize = 800;
+% xSize = 750; ySize = 650;
 % xLeft = 100; yTop = 0;
 % set(fig,'Position',[xLeft yTop xSize ySize])
 % 
 % fig = figure()
 % rlocus(GC*KsC)
 % title('Cart Root Locus')
-% xSize = 900; ySize = 800;
+% xSize = 750; ySize = 650;
 % xLeft = 100; yTop = 0;
 % set(fig,'Position',[xLeft yTop xSize ySize])
 
-kpP = 1;
-kiP = 1;
-kdP = 1;
-
-kpC = 1;
-kiC = 1;
-kdC = 1;
-
-KsP = kpP +kiP*(1/s) + kdP*s
-KsC = kpC +kiC*(1/s) + kdC*s
-
-fig = figure()
-rlocus(GP*KsP)
-title('Pendulum Root Locus')
-xSize = 900; ySize = 800;
-xLeft = 100; yTop = 0;
-set(fig,'Position',[xLeft yTop xSize ySize])
-
-fig = figure()
-rlocus(GC*KsC)
-title('Cart Root Locus')
-xSize = 900; ySize = 800;
-xLeft = 100; yTop = 0;
-set(fig,'Position',[xLeft yTop xSize ySize])
+% kpP = 1;
+% kiP = 1;
+% kdP = 1;
+% 
+% kpC = 1;
+% kiC = 1;
+% kdC = 1;
+% 
+% KsP = kpP +kiP*(1/s) + kdP*s
+% KsC = kpC +kiC*(1/s) + kdC*s
+% 
+% fig = figure()
+% rlocus(GP*KsP)
+% title('Pendulum Root Locus')
+% xSize = 750; ySize = 650;
+% xLeft = 100; yTop = 0;
+% set(fig,'Position',[xLeft yTop xSize ySize])
+% 
+% fig = figure()
+% rlocus(GC*KsC)
+% title('Cart Root Locus')
+% xSize = 750; ySize = 650;
+% xLeft = 100; yTop = 0;
+% set(fig,'Position',[xLeft yTop xSize ySize])
 
 % kpP = -1;
 % kiP = -1;
 % kdP = -1;
-%
-% kpC = -1;
-% kiC = -1;
-% kdC = -1;
-% 
+
+kpC = -11.28;
+kiC = -0.69;
+kdC = 23.96;
+
 % KsP = kpP +kiP*(1/s) + kdP*s
-% KsC = kpC +kiC*(1/s) + kdC*s
+KsC = kpC +kiC*(1/s) + kdC*s
 
 %% Auto tuning of Parallel PID controllers
 %kp = proportional gain, ki = integral grain
@@ -170,18 +166,18 @@ close all
 LP = KsP*GP
 HP = (LP)/(1+LP)
 
-t1 = (0:0.001:2)';
+t1 = (0:0.001:0.35)';
 
-fig = figure()
-stepplot(HP,t1)
-title('PID Pendulum Step Response')
-xSize = 900; ySize = 800;
-xLeft = 100; yTop = 0;
-set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time~[s]$','interpreter','latex')
-ylabel('$Amplitude~[m]$','interpreter','latex')
-legend('Pendulum');
-grid on
+% fig = figure()
+% stepplot(HP,t1)
+% title('PID Pendulum Step Response')
+% xSize = 750; ySize = 650;
+% xLeft = 100; yTop = 0;
+% set(fig,'Position',[xLeft yTop xSize ySize])
+% xlabel('$Time~$','interpreter','latex')
+% ylabel('$Amplitude~$(meters)','interpreter','latex')
+% legend('Pendulum');
+% grid on
 
 LC = KsC*GC
 HC = (LC)/(1+LC)
@@ -191,33 +187,33 @@ t2 = (0:0.001:0.1)';
 % fig = figure()
 % impulseplot(HP,t1)
 % title('PID Pendulum Impulse Response')
-% xSize = 900; ySize = 800;
+% xSize = 750; ySize = 650;
 % xLeft = 100; yTop = 0;
 % set(fig,'Position',[xLeft yTop xSize ySize])
-% xlabel('$Time~[s]$','interpreter','latex')
-% ylabel('$Amplitude~[m]$','interpreter','latex')
+% xlabel('$Time~$','interpreter','latex')
+% ylabel('$Amplitude~$(meters)','interpreter','latex')
 % legend('Pendulum');
 % grid on
 
-% fig = figure()
-% stepplot(HP,HC,t1)
-% title('Parallel PID System Step Responses')
-% xSize = 900; ySize = 800;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
-% xlabel('$Time~[s]$','interpreter','latex')
-% ylabel('$Amplitude~[m]$','interpreter','latex')
-% legend('Pendulum','Cart');
-% grid on
+fig = figure()
+stepplot(HP,HC,t1)
+title('Parallel PID System Step Responses')
+xSize = 750; ySize = 650;
+xLeft = 100; yTop = 0;
+set(fig,'Position',[xLeft yTop xSize ySize])
+xlabel('$Time~$','interpreter','latex')
+ylabel('$Amplitude~$(meters)','interpreter','latex')
+legend('Pendulum','Cart');
+grid on
 
 % fig = figure()
 % impulseplot(HP,HC,t2)
 % title('Parallel PID System Impulse Responses')
-% xSize = 900; ySize = 800;
+% xSize = 750; ySize = 650;
 % xLeft = 100; yTop = 0;
 % set(fig,'Position',[xLeft yTop xSize ySize])
-% xlabel('$Time~[s]$','interpreter','latex')
-% ylabel('$Amplitude~[m]$','interpreter','latex')
+% xlabel('$Time~$','interpreter','latex')
+% ylabel('$Amplitude~$(meters)','interpreter','latex')
 % legend('Pendulum','Cart');
 % grid on
 
@@ -247,7 +243,7 @@ TfC = 1.41006414988528;
 
 KsC = kpC + kiC*(1/s) + kdC*(TfC/(1+TfC*(1/s)))
 
-%%
+%% Modern Control
 close all
 
 A
@@ -255,33 +251,123 @@ B
 C
 D
 
+states = {'x' 'x_dot' 'phi' 'phi_dot'};
+inputs = {'u'};
+outputs = {'x'; 'phi'};
 
-Obs = [C; C*A; C*A*A; C*A*A*A]
+% This assumes full state feedback, which will not be the case irl
+Q = C'*C;
+Q(1,1) = 5000;
+Q(3,3) = 100
+R = 1;
+K = lqr(A,B,Q,R)
 
-Con = [B  A*B   A*A*B   A*A*A*B]
+Ac = [(A-B*K)];
+Bc = [B];
+Cc = [C];
+Dc = [D];
 
-nul = [0, 0; 0, 0; 0, 0; 0, 0]
-nul1 = [0, 0; 0, 0]
-nul2 = [0; 0]
+states = {'x' 'x_dot' 'phi' 'phi_dot'};
+inputs = {'r'};
+outputs = {'x'; 'phi'};
 
-Ae = [A, nul;C, nul1]
-Be = [B; nul2]
-Ce = [C, nul1]
+Cn = [1 0 0 0];
+sys_ss = ss(A,B,Cn,0);
+Nbar = rscale(sys_ss,K)
 
-rank(Obs)
+sys_cl = ss(Ac,Bc*Nbar,Cc,Dc,'statename',states,'inputname',inputs,'outputname',outputs);
 
-rank(Con)
+init_cond = [1; 2; 3; 4];
+t = 0:0.01:5;
+cart_ref = 0;
+r = cart_ref * ones(size(t));
+figure()
+[y,t,x]=lsim(sys_cl, r, t, init_cond);
+[AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
+set(get(AX(1),'Ylabel'),'String','cart position (m)')
+set(get(AX(2),'Ylabel'),'String','pendulum angle (radians)')
+title('Step Response with Precompensation and LQR Control')
 
-p = [-1.1 -1.2 -100 -110 -120 -130];
-K = place(Ae,-Be,p)
+% Observer-based control is implemented as a replacement
 
-Fi = K(:, [5, 6])
-F = K(:, 1:4)
+ob = obsv(sys_ss);
+observability = rank(ob)
 
-nul3 = [0, 0, 0]
+poles = eig(Ac)
 
-p1 = [-50, -40, -45, -47]
-L = place(A', -C', p1)
-L = L'
+P = [-40 -41 -42 -43];
+L = place(A',C',P)'
 
+Ace = [(A-B*K) (B*K);
+       zeros(size(A)) (A-L*C)];
+Bce = [B*Nbar;
+       zeros(size(B))];
+Cce = [Cc zeros(size(Cc))];
+Dce = [0;0];
 
+states = {'x' 'x_dot' 'phi' 'phi_dot' 'e1' 'e2' 'e3' 'e4'};
+inputs = {'r'};
+outputs = {'x'; 'phi'};
+
+sys_est_cl = ss(Ace,Bce,Cce,Dce,'statename',states,'inputname',inputs,'outputname',outputs);
+
+init_cond = [init_cond; zeros(4,1)]
+t = 0:0.01:5;
+r = cart_ref*ones(size(t));
+figure()
+[y,t,x]=lsim(sys_est_cl, r, t, init_cond);
+[AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
+set(get(AX(1),'Ylabel'),'String','cart position (m)')
+set(get(AX(2),'Ylabel'),'String','pendulum angle (radians)')
+title('Step Response with Observer-Based State-Feedback Control')
+
+    
+function[Nbar] = rscale(a,b,c,d,k) 
+    
+    % Given the single-input linear system: 
+    % . 
+    % x = Ax + Bu 
+    % y = Cx + Du
+    % and the feedback matrix K,
+    %
+    % the function rscale(sys,K) or rscale(A,B,C,D,K) 
+    % finds the scale factor N which will 
+    % eliminate the steady-state error to a step reference 
+    % for a continuous-time, single-input system 
+    % with full-state feedback using the schematic below: 
+    %
+    %                     /---------\ 
+    % R         +       u | .       | 
+    % ---> N --->() ----> | X=Ax+Bu |--> y = Cx ---> y 
+    %           -|        \---------/ 
+    %            |             | 
+    %            |<---- K <----| 
+    % 
+    % 8/21/96 Yanjie Sun of the University of Michigan 
+    % under the supervision of Prof. D. Tilbury 
+    % 6/12/98 John Yook, Dawn Tilbury revised error(nargchk(2,5,nargin));
+    
+    % --- Determine which syntax is being used --- nargin1 = nargin;
+    
+    if (nargin==2), % System form 
+        
+        [A,B,C,D] = ssdata(a); K=b;
+    
+    elseif (nargin==5), % A,B,C,D matrices A=a;
+        A = a;
+        B = b;
+        C = c;
+        D = d;
+        K = k;
+    else
+        error('Input must be of the form (sys,K) or (A,B,C,D,K)')
+    end;
+    
+    % compute Nbar s = size(A,1);
+    s = size(A,1);
+    Z = [zeros([1,s]) 1];
+    N = inv([A,B;C,D])*Z';
+    Nx = N(1:s);
+    Nu = N(1+s);
+    Nbar = Nu + K*Nx; 
+end
