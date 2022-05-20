@@ -1,31 +1,29 @@
 %% System modelling
 clc, clear, close all
 sympref('AbbreviateOutput', false);
-syms mc mp l theta dtheta ddtheta x dx ddx F bc bp Jp g;
+syms mc mp l theta dtheta ddtheta x dx ddx F bc bp Jp g
 
-g_ = 9.82;    %Earth gravitational force
+g_ = 9.82    %Earth gravitational force
 
-mc_ = 0.5;    %Mass of cart
-bc_ = 5;      %Friction coeficient of cart
-%bc_ = 0;
+mc_ = 0.5    %Mass of cart
+bc_ = 5      %Friction coeficient of cart
 
-mp_ = 0.084;  %Mass of pendulum
-bp_ = 0.0012; %Friction coeficcient of pendulum
-%bp_ = 0;
-l_ = 0.35;    %length of pendulum
-
-%Jp_ = (1/3)*mp_*l_^2
-Jp_ = 0;
+mp_ = 0.084  %Mass of pendulum
+bp_ = 0.0012 %Friction coeficcient of pendulum
+l_ = 0.35    %length of pendulum
 
 cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*sin(theta)*dtheta^2== F - bc*dx
 pend = mp*l*ddtheta+mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta-mp*l*sin(theta)*(g+dx*dtheta) == -bp*dtheta
 
+
+
 sol = solve([cart,pend],ddx,ddtheta);
 
-x1 = dx
+x1 = dx;
 x2 = sol.ddx
-x3 = dtheta
+x3 = dtheta;
 x4 = sol.ddtheta
+
 
 %Differentiate into jacobian:
 An = [diff(x1,x) diff(x1,dx) diff(x1,theta) diff(x1,dtheta);
@@ -33,60 +31,65 @@ An = [diff(x1,x) diff(x1,dx) diff(x1,theta) diff(x1,dtheta);
       diff(x3,x) diff(x3,dx) diff(x3,theta) diff(x3,dtheta);
       diff(x4,x) diff(x4,dx) diff(x4,theta) diff(x4,dtheta)];
 
+
 Bn = [diff(x1,F);
       diff(x2,F);
       diff(x3,F);
       diff(x4,F)];
 
-%Linearize about 0 degrees, assuming zero speed. 
 
-Al = subs(An, {theta dtheta x dx F},{0 0 0 0 0})
-Bl = subs(Bn, {theta dtheta x dx F},{0 0 0 0 0})
+%Linearize about 0 degrees, asuming zero speed. 
+
+Al = subs(An, {theta dtheta x dx F},{pi 0 0 0 0})
+Bl = subs(Bn, {theta dtheta x dx F},{pi 0 0 0 0})
 
 %Insert Values
-A = double(subs(Al, {Jp mc mp l bc bp g}, {Jp_ mc_ mp_ l_ bc_ bp_ g_}))
-B = double(subs(Bl, {Jp mc mp l bc bp g}, {Jp_ mc_ mp_ l_ bc_ bp_ g_}))
+A = subs(Al, {mc mp l bc bp g}, {mc_ mp_ l_ bc_ bp_ g_});
+B = subs(Bl, {mc mp l bc bp g}, {mc_ mp_ l_ bc_ bp_ g_});
 
-vpa(A);
-vpa(B);
+vpa(A)
+vpa(B)
+A = double(A)
+B = double(B)
 
 %Values for matrix [cart pos, cart velocity, pend pos, pend velocity]
 %velocity
-C = double([1 0 0 0; 0 0 1 0]) %Cart speed
-D = double(0);
+C = [1 0 0 0; 0 0 1 0] %Cart speed
+D = 0;
 
 % Statespace object
 sys_ss = ss(double(A),double(B),double(C),D);
 
 % Transferfunction from statespace
-sys_tf = tf(sys_ss);
+sys_tf = tf(sys_ss)
 
 % Individual transfer functions
 [num, denum] = tfdata(sys_tf);
 
-s = tf('s');
+sys_tf_cart = tf(num(1),denum(1))
+sys_tf_pend = tf(num(2),denum(2))
 
-GC = tf(num(1),denum(1))
-GP = tf(num(2),denum(2));
+%Here I remove the numerical error on sys_tf_pend
+%sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
 
-fig = figure()
-pzmap(GP, GC)
-title('System PZ Map')
-xSize = 750; ySize = 650;
-xLeft = 100; yTop = 0;
-set(fig,'Position',[xLeft yTop xSize ySize])
-legend('Pendulum','Cart')
-
-fig = figure()
-stepplot(GP, GC)
-title('System Step Responses')
-xSize = 750; ySize = 650;
-xLeft = 100; yTop = 0;
-set(fig,'Position',[xLeft yTop xSize ySize])
-xlabel('$Time~$','interpreter','latex')
-ylabel('$Amplitude~$(meters)','interpreter','latex')
-legend('Pendulum', 'Cart');
-grid on
+% fig = figure()
+% pzmap(GP, GC)
+% title('System PZ Map')
+% xSize = 750; ySize = 650;
+% xLeft = 100; yTop = 0;
+% set(fig,'Position',[xLeft yTop xSize ySize])
+% legend('Pendulum','Cart')
+% 
+% fig = figure()
+% stepplot(GP, GC)
+% title('System Step Responses')
+% xSize = 750; ySize = 650;
+% xLeft = 100; yTop = 0;
+% set(fig,'Position',[xLeft yTop xSize ySize])
+% xlabel('$Time~$','interpreter','latex')
+% ylabel('$Amplitude~$(meters)','interpreter','latex')
+% legend('Pendulum', 'Cart');
+% grid on
 
 %% Manual Parallel PID tuning using root locus
 s = tf('s');
@@ -245,20 +248,22 @@ KsC = kpC + kiC*(1/s) + kdC*(TfC/(1+TfC*(1/s)))
 
 %% Modern Control
 close all
+Anew = [0    1.0000         0         0; -10.3406,  -0.0430, 0, -9.0155; 0, 0, 0, 1; -0.5206 ,  -0.0022 ,0 ,  -9.0155 ]
 
-A
-B
-C
-D
+A = Anew
 
 states = {'x' 'x_dot' 'phi' 'phi_dot'};
 inputs = {'u'};
 outputs = {'x'; 'phi'};
 
 % This assumes full state feedback, which will not be the case irl
+
+cart_weight = 1500;
+pend_weight = 5000;
+
 Q = C'*C;
-Q(1,1) = 5000;
-Q(3,3) = 100
+Q(1,1) = cart_weight
+Q(3,3) = pend_weight
 R = 1;
 K = lqr(A,B,Q,R)
 
@@ -267,25 +272,25 @@ Bc = [B];
 Cc = [C];
 Dc = [D];
 
-states = {'x' 'x_dot' 'phi' 'phi_dot'};
+states = {'theta' 'theta_dot' 'x' 'x_dot'};
 inputs = {'r'};
-outputs = {'x'; 'phi'};
+outputs = {'theta';'x'};
 
-Cn = [1 0 0 0];
+Cn = [0 0 1 0];
 sys_ss = ss(A,B,Cn,0);
 Nbar = rscale(sys_ss,K)
 
 sys_cl = ss(Ac,Bc*Nbar,Cc,Dc,'statename',states,'inputname',inputs,'outputname',outputs);
 
-init_cond = [1; 2; 3; 4];
-t = 0:0.01:5;
-cart_ref = 0;
+init_cond = [pi; 0; -1; 0];
+t = 0:0.001:15;
+cart_ref = pi;
 r = cart_ref * ones(size(t));
 figure()
 [y,t,x] = lsim(sys_cl, r, t, init_cond);
 [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(m)','interpreter','latex')
-set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(rad)','interpreter','latex')
+set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
+set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
 xlabel('$Time~$(seconds)','interpreter','latex')
 title('Step Response with Precompensation and LQR Control')
 
@@ -306,25 +311,23 @@ Bce = [B*Nbar;
 Cce = [Cc zeros(size(Cc))];
 Dce = [0;0];
 
-states = {'x' 'x_dot' 'phi' 'phi_dot' 'e1' 'e2' 'e3' 'e4'};
+states = {'theta' 'theta_dot' 'x' 'x_dot' 'e1' 'e2' 'e3' 'e4'};
 inputs = {'r'};
-outputs = {'x'; 'phi'};
+outputs = {'theta'; 'theta_dot'};
 
 sys_est_cl = ss(Ace,Bce,Cce,Dce,'statename',states,'inputname',inputs,'outputname',outputs);
 
 init_cond = [init_cond; zeros(4,1)]
-t = 0:0.01:5;
 r = cart_ref*ones(size(t));
 figure()
 [y,t,x]=lsim(sys_est_cl, r, t, init_cond);
 [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(m)','interpreter','latex')
-set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(rad)','interpreter','latex')
+set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
+set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
 xlabel('$Time~$(seconds)','interpreter','latex')
 
 title('Step Response with Observer-Based State-Feedback Control')
 
-    
 function[Nbar] = rscale(a,b,c,d,k) 
     
     % Given the single-input linear system: 
