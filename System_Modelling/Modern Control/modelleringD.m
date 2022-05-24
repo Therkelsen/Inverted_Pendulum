@@ -12,12 +12,11 @@ mp_ = 0.084  %Mass of pendulum
 bp_ = 0.0012 %Friction coeficcient of pendulum
 l_ = 0.35    %length of pendulum    (179 mm correct)
 
-cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*sin(theta)*dtheta^2== F - bc*dx
-pend = mp*l^2*ddtheta + mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta - mp*l*sin(theta)*(g-dx*dtheta) == -bp*dtheta
+% cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*sin(theta)*dtheta^2== F - bc*dx
+% pend = mp*l^2*ddtheta + mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta - mp*l*sin(theta)*(g-dx*dtheta) == -bp*dtheta
 
-% 
-% cart1 = (mc + mp)*ddx + l*mp*cos(theta)*ddtheta - l*mp*sin(theta)*dtheta^2  == F- bc*dx
-% pend1 = mp*l^2*ddtheta + mp*cos(theta)*l*ddx + g*mp*sin(theta)*l ==-bp*dtheta
+cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*sin(theta)*dtheta^2== F - bc*dx
+pend = mp*l*ddtheta+mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta-mp*l*sin(theta)*(g+dx*dtheta) == -bp*dtheta
 %  
 % 
 % lagrange = 0.5*(mc + mp)*diff(X, t)^2 + mp*diff(X, t)*l*diff(Theta, t)*cos(Theta) + 0.5*mp*l^2*diff(Theta, t)^2 + mp*g*l*cos(Theta)
@@ -55,18 +54,18 @@ Bl = subs(Bn, {theta dtheta x dx F},{pi 0 0 0 0})
 A = subs(Al, {mc mp l bc bp g}, {mc_ mp_ l_ bc_ bp_ g_});
 B = subs(Bl, {mc mp l bc bp g}, {mc_ mp_ l_ bc_ bp_ g_});
 
-vpa(A)
-vpa(B)
-A = double(A)
-B = double(B)
+vpa(A);
+vpa(B);
+A = double(A);
+B = double(B);
 
 %Values for matrix [cart pos, cart velocity, pend pos, pend velocity]
 %velocity
-C = [1 0 0 0; 0 0 1 0] %Cart speed
+C = [1 0 0 0; 0 0 1 0]; %Cart speed
 D = 0;
 
 % Statespace object
-sys_ss = ss(double(A),double(B),double(C),D);
+sys_ss = ss(double(A),double(B),double(C),D)
 
 % Transferfunction from statespace
 sys_tf = tf(sys_ss)
@@ -74,9 +73,8 @@ sys_tf = tf(sys_ss)
 % Individual transfer functions
 [num, denum] = tfdata(sys_tf);
 
-sys_tf_cart = tf(num(1),denum(1))
-sys_tf_pend = tf(num(2),denum(2))
-
+GC = tf(num(1),denum(1))
+GP = tf(num(2),denum(2))
 
 %Here I remove the numerical error on sys_tf_pend
 %sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
@@ -103,65 +101,40 @@ sys_tf_pend = tf(num(2),denum(2))
 %% Manual Parallel PID tuning using root locus
 s = tf('s');
 
-% kpP = 1;
-% kiP = 0;
-% kdP = 0;
-% 
-% kpC = 1;
-% kiC = 0;
-% kdC = 0;
-% 
-% KsP = kpP +kiP*(1/s) + kdP*s
-% KsC = kpC +kiC*(1/s) + kdC*s
-% 
-% fig = figure()
-% rlocus(GP*KsP)
-% title('Pendulum Root Locus')
-% xSize = 750; ySize = 650;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
-% 
-% fig = figure()
-% rlocus(GC*KsC)
-% title('Cart Root Locus')
-% xSize = 750; ySize = 650;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
+kpP = 1;
+kiP = 1;
+kdP = 0.05;
 
-% kpP = 1;
-% kiP = 1;
-% kdP = 1;
-% 
-% kpC = 1;
-% kiC = 1;
-% kdC = 1;
-% 
-% KsP = kpP +kiP*(1/s) + kdP*s
-% KsC = kpC +kiC*(1/s) + kdC*s
-% 
-% fig = figure()
-% rlocus(GP*KsP)
-% title('Pendulum Root Locus')
-% xSize = 750; ySize = 650;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
-% 
-% fig = figure()
-% rlocus(GC*KsC)
-% title('Cart Root Locus')
-% xSize = 750; ySize = 650;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
+kpC = 1;
+kiC = 19;
+kdC = 5.12;
 
-% kpP = -1;
-% kiP = -1;
-% kdP = -1;
+KsP = kpP +kiP*(1/s) + kdP*s
+KsC = kpC +kiC*(1/s) + kdC*s
 
-kpC = -11.28;
-kiC = -0.69;
-kdC = 23.96;
+fig = figure()
+rlocus(GP*KsP)
+title('Pendulum Root Locus')
+xSize = 750; ySize = 650;
+xLeft = 100; yTop = 0;
+set(fig,'Position',[xLeft yTop xSize ySize])
 
-% KsP = kpP +kiP*(1/s) + kdP*s
+fig = figure()
+rlocus(GC*KsC)
+title('Cart Root Locus')
+xSize = 750; ySize = 650;
+xLeft = 100; yTop = 0;
+set(fig,'Position',[xLeft yTop xSize ySize])
+
+kpP = 664;
+kiP = 3.4e+03;
+kdP = 31.2;
+
+kpC = 1;
+kiC = 1;
+kdC = 1;
+
+KsP = kpP +kiP*(1/s) + kdP*s
 KsC = kpC +kiC*(1/s) + kdC*s
 
 %% Auto tuning of Parallel PID controllers
@@ -178,7 +151,8 @@ close all
 LP = KsP*GP
 HP = (LP)/(1+LP)
 
-t1 = (0:0.001:0.35)';
+t1 = (0:0.001:1)';
+t2 = (0:0.001:30)';
 
 % fig = figure()
 % stepplot(HP,t1)
@@ -194,27 +168,25 @@ t1 = (0:0.001:0.35)';
 LC = KsC*GC
 HC = (LC)/(1+LC)
 
-t2 = (0:0.001:0.1)';
-
 % fig = figure()
-% impulseplot(HP,t1)
-% title('PID Pendulum Impulse Response')
+% stepplot(HC,t1)
+% title('PID Cart Step Response')
 % xSize = 750; ySize = 650;
 % xLeft = 100; yTop = 0;
 % set(fig,'Position',[xLeft yTop xSize ySize])
 % xlabel('$Time~$','interpreter','latex')
 % ylabel('$Amplitude~$(meters)','interpreter','latex')
-% legend('Pendulum');
+% legend('Cart');
 % grid on
 
 fig = figure()
-stepplot(HP,HC,t1)
+stepplot(HP,HC,t2)
 title('Parallel PID System Step Responses')
 xSize = 750; ySize = 650;
 xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
 xlabel('$Time~$','interpreter','latex')
-ylabel('$Amplitude~$(meters)','interpreter','latex')
+ylabel('$Amplitude~$(rad \& meters)','interpreter','latex')
 legend('Pendulum','Cart');
 grid on
 
@@ -257,12 +229,14 @@ KsC = kpC + kiC*(1/s) + kdC*(TfC/(1+TfC*(1/s)))
 
 %% Modern Control
 close all
-Anew = [0    1.0000         0         0; -10.3406,  -0.0430, 0, -9.0155; 0, 0, 0, 1; -0.5206 ,  -0.0022 ,0 ,  -9.0155 ]
-%Anew = []
+Anew = [0,  1.0000, 0,  0; 
+        -10.3406,   -0.0430,    0,  -9.0155;
+        0, 0, 0, 1;
+        -0.5206,    -0.0022,    0,  -9.0155]
 
 A = Anew
 
-% This assumes full state feedback, which will not be the case irl
+% This assumes full state feedback, which might not be the case irl
 % Without weights
 Q = C'*C;
 R = 1;
@@ -277,9 +251,9 @@ states = {'theta' 'theta_dot' 'x' 'x_dot'};
 inputs = {'r'};
 outputs = {'theta';'x'};
 
-init_cond = [pi; 0; 0; 0];
+init_cond = [pi/8; 0; 1; 0];
 t = 0:0.001:15;
-cart_ref = pi;
+cart_ref = 0;
 
 sys_cl = ss(Ac,Bc,Cc,Dc,'statename',states,'inputname',inputs,'outputname',outputs);
 
@@ -323,37 +297,37 @@ xlabel('$Time~$(seconds)','interpreter','latex')
 title('Step Response with weighed LQR Control')
 
 % Observer-based control is implemented as a replacement
-
-ob = obsv(sys_ss);
-observability = rank(ob)
-
-poles = eig(Ac)
-
-P = [-40 -41 -42 -43];
-L = place(A',C',P)'
-
-Ace = [(A-B*K) (B*K);
-       zeros(size(A)) (A-L*C)];
-Bce = [B*Nbar;
-       zeros(size(B))];
-Cce = [Cc zeros(size(Cc))];
-Dce = [0;0];
-
-states = {'theta' 'theta_dot' 'x' 'x_dot' 'e1' 'e2' 'e3' 'e4'};
-inputs = {'r'};
-outputs = {'theta'; 'theta_dot'};
-
-sys_est_cl = ss(Ace,Bce,Cce,Dce,'statename',states,'inputname',inputs,'outputname',outputs);
-
-init_cond = [init_cond; zeros(4,1)]
-figure()
-[y,t,x]=lsim(sys_est_cl, r, t, init_cond);
-[AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
-set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
-xlabel('$Time~$(seconds)','interpreter','latex')
-
-title('Step Response with Observer-Based State-Feedback Control')
+% 
+% ob = obsv(sys_ss);
+% observability = rank(ob)
+% 
+% poles = eig(Ac)
+% 
+% P = [-40 -41 -42 -43];
+% L = place(A',C',P)'
+% 
+% Ace = [(A-B*K) (B*K);
+%        zeros(size(A)) (A-L*C)];
+% Bce = [B*Nbar;
+%        zeros(size(B))];
+% Cce = [Cc zeros(size(Cc))];
+% Dce = [0;0];
+% 
+% states = {'theta' 'theta_dot' 'x' 'x_dot' 'e1' 'e2' 'e3' 'e4'};
+% inputs = {'r'};
+% outputs = {'theta'; 'theta_dot'};
+% 
+% sys_est_cl = ss(Ace,Bce,Cce,Dce,'statename',states,'inputname',inputs,'outputname',outputs);
+% 
+% init_cond = [init_cond; zeros(4,1)]
+% figure()
+% [y,t,x]=lsim(sys_est_cl, r, t, init_cond);
+% [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
+% set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
+% set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
+% xlabel('$Time~$(seconds)','interpreter','latex')
+% 
+% title('Step Response with Observer-Based State-Feedback Control')
 
 function[Nbar] = rscale(a,b,c,d,k) 
     
