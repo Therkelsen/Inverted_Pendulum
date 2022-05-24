@@ -76,6 +76,11 @@ sys_tf = tf(sys_ss)
 GC = tf(num(1),denum(1))
 GP = tf(num(2),denum(2))
 
+% PLC sample time, used for digitization
+Ts = 0.001;
+% Saturation is decided by the motor max force
+sat = 1168;
+
 %Here I remove the numerical error on sys_tf_pend
 %sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
 
@@ -99,15 +104,16 @@ GP = tf(num(2),denum(2))
 % grid on
 
 %% Manual Parallel PID tuning using root locus
+close all
 s = tf('s');
 
 kpP = 1;
-kiP = 1;
-kdP = 0.05;
+kiP = -3460;
+kdP = -9.07;
 
 kpC = 1;
-kiC = 19;
-kdC = 5.12;
+kiC = 1.9;
+kdC = 0.12;
 
 KsP = kpP +kiP*(1/s) + kdP*s
 KsC = kpC +kiC*(1/s) + kdC*s
@@ -126,15 +132,16 @@ xSize = 750; ySize = 650;
 xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
 
-kpP = 664;
-kiP = 3.4e+03;
-kdP = 31.2;
+kpP = -354;
+kiP = -3460;
+kdP = -9.07;
 
 kpC = 1;
-kiC = 1;
-kdC = 1;
+kiC = 1.9;
+kdC = 0.12;
 
-KsP = kpP +kiP*(1/s) + kdP*s
+KsP = kpP+kiP*(1/s)+kdP*s;
+% KsP = kpP +kiP*(1/s) + kdP*s
 KsC = kpC +kiC*(1/s) + kdC*s
 
 %% Auto tuning of Parallel PID controllers
@@ -152,7 +159,7 @@ LP = KsP*GP
 HP = (LP)/(1+LP)
 
 t1 = (0:0.001:1)';
-t2 = (0:0.001:30)';
+t2 = (0:0.001:10)';
 
 % fig = figure()
 % stepplot(HP,t1)
@@ -211,21 +218,6 @@ sReplace = (2/Ts)*((z-1)/(z+1));
 KzP = kpP + kiP*(1/sReplace) + kdP*sReplace
 
 KzC = kpC + kiC*(1/sReplace) + kdC*sReplace
-
-%% Cascade controllers
-
-kpP = 695;
-kiP = 3.8e+03;
-kdP = 31.8;
-
-KsP = kpP +kiP*(1/s) + kdP*s
-
-kpC = 0.00468134655401907;
-kiC = 0.000103385823399229;
-kdC = 0.0505001089730261;
-TfC = 1.41006414988528;
-
-KsC = kpC + kiC*(1/s) + kdC*(TfC/(1+TfC*(1/s)))
 
 %% Modern Control
 close all
