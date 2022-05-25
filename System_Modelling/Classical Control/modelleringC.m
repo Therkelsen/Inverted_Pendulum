@@ -282,10 +282,11 @@ t = 0:0.01:5;
 cart_ref = 0;
 r = cart_ref * ones(size(t));
 figure()
-[y,t,x]=lsim(sys_cl, r, t, init_cond);
+[y,t,x] = lsim(sys_cl, r, t, init_cond);
 [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','cart position (m)')
-set(get(AX(2),'Ylabel'),'String','pendulum angle (radians)')
+set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(m)','interpreter','latex')
+set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(rad)','interpreter','latex')
+xlabel('$Time~$(seconds)','interpreter','latex')
 title('Step Response with Precompensation and LQR Control')
 
 % Observer-based control is implemented as a replacement
@@ -317,8 +318,10 @@ r = cart_ref*ones(size(t));
 figure()
 [y,t,x]=lsim(sys_est_cl, r, t, init_cond);
 [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','cart position (m)')
-set(get(AX(2),'Ylabel'),'String','pendulum angle (radians)')
+set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(m)','interpreter','latex')
+set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(rad)','interpreter','latex')
+xlabel('$Time~$(seconds)','interpreter','latex')
+
 title('Step Response with Observer-Based State-Feedback Control')
 
     
