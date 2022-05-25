@@ -19,7 +19,6 @@ pend = mp*l^2*ddtheta + mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta - mp*l*sin
 % Wai = diff(diff(lagrange, diff(Theta, t)), t) - diff(lagrange, Theta)
 % Wai1 = diff(diff(lagrange, diff(X, t)), t) - diff(lagrange, X)
 
-
 sol = solve([cart,pend],ddx,ddtheta);
 
 x1 = dx;
@@ -76,6 +75,8 @@ GP = tf(num(2),denum(2))
 Ts = 0.001;
 % Saturation is decided by the motor max force
 sat = 1168;
+% Initial conditions
+init_cond = [0,0,pi/4,0];
 
 %Here I remove the numerical error on sys_tf_pend
 %sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
@@ -239,20 +240,20 @@ states = {'theta' 'theta_dot' 'x' 'x_dot'};
 inputs = {'r'};
 outputs = {'theta';'x'};
 
-init_cond = [pi/8; 0; 1; 0];
+init_cond = [pi/8; 0; 0; 0];
 t = 0:0.001:15;
 cart_ref = 0;
 
 sys_cl = ss(Ac,Bc,Cc,Dc,'statename',states,'inputname',inputs,'outputname',outputs);
 
-r = cart_ref * ones(size(t));
-figure()
-[y,t,x] = lsim(sys_cl, r, t, init_cond);
-[AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
-set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
-xlabel('$Time~$(seconds)','interpreter','latex')
-title('Step Response with LQR Control')
+% r = cart_ref * ones(size(t));
+% figure()
+% [y,t,x] = lsim(sys_cl, r, t, init_cond);
+% [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
+% set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
+% set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
+% xlabel('$Time~$(seconds)','interpreter','latex')
+% title('Step Response with LQR Control')
 
 % With precompensation and added weights in the Q matrix
 cart_weight = 1500;
