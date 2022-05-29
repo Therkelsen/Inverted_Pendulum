@@ -79,7 +79,7 @@ Ts = 0.001;
 % Saturation is decided by the motor max force
 sat = 1168;
 % Initial conditions
-init_cond = [0,0,pi/8,0];
+init_cond = [0,0,0,0];
 
 %Here I remove the numerical error on sys_tf_pend
 %sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
@@ -100,16 +100,16 @@ xLeft = 100; yTop = 0;
 set(fig,'Position',[xLeft yTop xSize ySize])
 legend('Cart')
 
-% fig = figure()
-% stepplot(GP, GC)
-% title('System Step Responses')
-% xSize = 750; ySize = 650;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
-% xlabel('$Time~$','interpreter','latex')
-% ylabel('$Amplitude~$(meters)','interpreter','latex')
-% legend('Pendulum', 'Cart');
-% grid on
+fig = figure()
+stepplot(GP, GC)
+title('System Step Responses')
+xSize = 750; ySize = 650;
+xLeft = 100; yTop = 0;
+set(fig,'Position',[xLeft yTop xSize ySize])
+xlabel('$Time~$','interpreter','latex')
+ylabel('$Amplitude~$(meters)','interpreter','latex')
+legend('Pendulum', 'Cart');
+grid on
 
 %% Manual Parallel PID tuning using root locus
 close all
