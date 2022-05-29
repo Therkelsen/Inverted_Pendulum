@@ -12,8 +12,8 @@ mp_ = 0.084  %Mass of pendulum
 bp_ = 0.0012 %Friction coeficcient of pendulum
 l_ = 0.35    %length of pendulum    (179 mm correct)
 
-cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*cos(theta)*dtheta^2== F - bc*dx
-pend = mp*l^2*ddtheta + mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta - mp*l*sin(theta)*(g-dx*dtheta) == -bp*dtheta 
+cart = (mc+mp)*ddx + mp*l*ddtheta*cos(theta)-mp*l*cos(theta)*dtheta^2 == F - bc*dx
+pend = mp*l^2*ddtheta + mp*l*ddx*cos(theta)-sin(theta)*mp*l*dx*dtheta - mp*l*sin(theta)*(g-dx*dtheta) == -bp*dtheta
 
 % lagrange = 0.5*(mc + mp)*diff(X, t)^2 + mp*diff(X, t)*l*diff(Theta, t)*cos(Theta) + 0.5*mp*l^2*diff(Theta, t)^2 + mp*g*l*cos(Theta)
 % Wai = diff(diff(lagrange, diff(Theta, t)), t) - diff(lagrange, Theta)
@@ -68,8 +68,11 @@ sys_tf = tf(sys_ss)
 % Individual transfer functions
 [num, denum] = tfdata(sys_tf);
 
-GC = tf(num(1),denum(1))
-GP = tf(num(2),denum(2))
+% GC = tf(num(1),denum(1))
+% GP = tf(num(2),denum(2))
+s = tf('s')
+GP = (-11.17*s)/(s^3 + 10.52*s^2-59.62*s-548.6)
+GC = (2*s^2+0.8917*s-109.7)/(s^4 + 10.52*s^3-59.62*s^2-548.6*s)
 
 % PLC sample time, used for digitization
 Ts = 0.001;
@@ -81,14 +84,22 @@ init_cond = [0,0,pi/8,0];
 %Here I remove the numerical error on sys_tf_pend
 %sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
 
-% fig = figure()
-% pzmap(GP, GC)
-% title('System PZ Map')
-% xSize = 750; ySize = 650;
-% xLeft = 100; yTop = 0;
-% set(fig,'Position',[xLeft yTop xSize ySize])
-% legend('Pendulum','Cart')
-% 
+fig = figure()
+pzmap(GP)
+title('Pendulum PZ Map')
+xSize = 750; ySize = 650;
+xLeft = 100; yTop = 0;
+set(fig,'Position',[xLeft yTop xSize ySize])
+legend('Pendulum')
+
+fig = figure()
+pzmap(GC)
+title('Cart PZ Map')
+xSize = 750; ySize = 650;
+xLeft = 100; yTop = 0;
+set(fig,'Position',[xLeft yTop xSize ySize])
+legend('Cart')
+
 % fig = figure()
 % stepplot(GP, GC)
 % title('System Step Responses')
