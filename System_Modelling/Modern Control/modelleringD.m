@@ -79,7 +79,7 @@ Ts = 0.001;
 % Saturation is decided by the motor max force
 sat = 1168;
 % Initial conditions
-init_cond = [0,0,0,0];
+init_cond = [0,0,pi/4,0];
 
 %Here I remove the numerical error on sys_tf_pend
 %sys_tf_pend = tf([1.803, 0], [1, 9.058, 10.71, 88.53])
@@ -251,21 +251,21 @@ states = {'theta' 'theta_dot' 'x' 'x_dot'};
 inputs = {'r'};
 outputs = {'theta';'x'};
 
-init_cond = [pi/8; 0; 0; 0];
-t = 0:0.001:5;
+init_cond = [0; 0; 0; 0];
+t = 0:0.001:10;
 %cart_ref = 1;
 
 sys_cl = ss(Ac,Bc,Cc,Dc,'statename',states,'inputname',inputs,'outputname',outputs);
 
 % r = cart_ref * ones(size(t));
 r = heaviside(t);
-% figure()
-% [y,t,x] = lsim(sys_cl, r, t, init_cond);
-% [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-% set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
-% set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
-% xlabel('$Time~$(seconds)','interpreter','latex')
-% title('Step Response with LQR Control')
+figure()
+[y,t,x] = lsim(sys_cl, r, t, init_cond);
+[AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
+set(get(AX(1),'Ylabel'),'String','Pendulum Angle (radians)')
+set(get(AX(2),'Ylabel'),'String','Cart Position (meters)')
+xlabel('Time (seconds)')
+title('Step Response with untuned LQR Control')
 
 % With precompensation and added weights in the Q matrix
 cart_weight = 1500;
@@ -288,14 +288,17 @@ Nbar = rscale(sys_ss,K)
 
 sys_cl = ss(Ac,Bc*Nbar,Cc,Dc,'statename',states,'inputname',inputs,'outputname',outputs);
 
+t2 = 0:0.001:5;
+r = heaviside(t2);
+
 figure()
-[y,t,x] = lsim(sys_cl, r, t, init_cond);
+[y,t,x] = lsim(sys_cl, r, t2, init_cond);
 [AX,H1,H2] = plotyy(t,y(:,1),t,y(:,2),'plot');
-set(get(AX(1),'Ylabel'),'String','$Cart~Position~$(meters)','interpreter','latex')
-set(get(AX(2),'Ylabel'),'String','$Pendulum~Angle~$(radians)','interpreter','latex')
-xlabel('$Time~$(seconds)','interpreter','latex')
-% title('Step Response with weighed LQR Control')
-lsim(sys_cl, r, t, init_cond)
+set(get(AX(1),'Ylabel'),'String','Pendulum Angle (radians)')
+set(get(AX(2),'Ylabel'),'String','Cart Position (meters)')
+xlabel('Time (seconds)')
+title('Step Response with tuned LQR Control')
+%lsim(sys_cl, r, t, init_cond)
 
 % Observer-based control is implemented as a replacement
 % 
